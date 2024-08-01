@@ -1,0 +1,20 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1722522516143,
+      "tag": "0000_great_penance",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1722523268737,
+      "tag": "0001_curly_shooting_star",
+      "breakpoints": true
+    }
+  ]
+}
