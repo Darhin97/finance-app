@@ -1,27 +1,57 @@
 import { Hono } from "hono";
-import { db } from "@/db/drizzle";
-import { account } from "@/db/schema";
+import { createId } from "@paralleldrive/cuid2";
+import { zValidator } from "@hono/zod-validator";
 import { clerkMiddleware, getAuth } from "@hono/clerk-auth";
-import { HTTPException } from "hono/http-exception";
 import { eq } from "drizzle-orm";
 
-const app = new Hono().get("/", clerkMiddleware(), async (c) => {
-  const auth = getAuth(c);
+import { db } from "@/db/drizzle";
+import { accounts, insertAccountSchema } from "@/db/schema";
 
-  if (!auth?.userId) {
-    return c.json({ error: "Unauthorized" }, 401);
-  }
+const app = new Hono()
+  .get("/", clerkMiddleware(), async (c) => {
+    const auth = getAuth(c);
 
-  const data = await db
-    .select({
-      id: account.id,
-      name: account.name,
-    })
-    .from(account)
-    .where(eq(account.userId, auth.userId));
+    if (!auth?.userId) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
 
-  return c.json({ data });
-});
+    // select returns an array
+    const data = await db
+      .select({
+        id: accounts.id,
+        name: accounts.name,
+      })
+      .from(accounts)
+      .where(eq(accounts.userId, auth.userId));
+
+    return c.json({ data });
+  })
+  .post(
+    "/",
+    clerkMiddleware(),
+    zValidator("json", insertAccountSchema.pick({ name: true })),
+    async (c) => {
+      const auth = getAuth(c);
+      const values = c.req.valid("json");
+
+      if (!auth?.userId) {
+        return c.json({ error: "Unauthorized" }, 401);
+      }
+
+      //insert by default will not return anything => you chain with returning
+      const [data] = await db
+        .insert(accounts)
+        .values({
+          id: createId(),
+          userId: auth.userId,
+          ...values,
+        })
+        .returning();
+
+      return c.json({ data });
+    },
+  );
+
 // read -> Using RPC with larger applications
 // app.get("/", (c) => {
 //   return c.json({ accounts: [] });
