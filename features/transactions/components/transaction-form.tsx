@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { insertAccountSchema, insertTransactionSchema } from "@/db/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Trash } from "lucide-react";
+import DatePicker from "@/components/date-picker";
+
+import { insertTransactionSchema } from "@/db/schema";
 import {
   Form,
   FormControl,
@@ -8,12 +12,12 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Trash } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import Select from "@/components/select";
-import DatePicker from "@/components/date-picker";
+import AmountInput from "@/components/amount-input";
+import { convertAmountToMiliunits } from "@/lib/utils";
 
 const formSchema = z.object({
   date: z.coerce.date(),
@@ -60,8 +64,13 @@ const TransactionForm = ({
   const handleSubmit = async (values: FormValues) => {
     if (!onSubmit) return;
 
-    console.log({ values });
-    // onSubmit(values);
+    const amount = parseFloat(values.amount);
+    const amountInMiliunits = convertAmountToMiliunits(amount);
+
+    onSubmit({
+      ...values,
+      amount: amountInMiliunits,
+    });
   };
   const handleDelete = async () => {
     onDelete?.();
@@ -126,8 +135,57 @@ const TransactionForm = ({
             </FormItem>
           )}
         />
+        <FormField
+          name={"payee"}
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Payee</FormLabel>
+              <FormControl>
+                <Input
+                  disabled={disabled}
+                  placeholder={"Add a payee"}
+                  {...field}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          name={"amount"}
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Amount</FormLabel>
+              <FormControl>
+                <AmountInput
+                  {...field}
+                  disabled={disabled}
+                  placeholder={"0.00"}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        <FormField
+          name={"notes"}
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Notes</FormLabel>
+              <FormControl>
+                <Textarea
+                  {...field}
+                  value={field.value ?? ""}
+                  disabled={disabled}
+                  placeholder={"Optional notes"}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
         <Button className={"w-full"} disabled={disabled}>
-          {id ? "Save changes" : "Create account"}
+          {id ? "Save changes" : "Create transaction"}
         </Button>
         {!!id && (
           <Button
@@ -138,7 +196,7 @@ const TransactionForm = ({
             variant={"outline"}
           >
             <Trash className={"w-4 h-4 mr-2"} />
-            Delete account
+            Delete transaction
           </Button>
         )}
       </form>

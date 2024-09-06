@@ -4,13 +4,13 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { SelectSingleEventHandler } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
 
 type Props = {
   value?: Date;
@@ -40,7 +40,7 @@ const DatePicker = ({ value, onChange, disabled }: Props) => {
           selected={value}
           onSelect={onChange}
           disabled={disabled}
-          initialFocus
+          // initialFocus
         />
       </PopoverContent>
     </Popover>

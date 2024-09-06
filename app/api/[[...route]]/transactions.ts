@@ -1,18 +1,18 @@
 import { z } from "zod";
+import { db } from "@/db/drizzle";
 import { Hono } from "hono";
+import { endOfDay, parse, startOfDay, subDays } from "date-fns";
 import { createId } from "@paralleldrive/cuid2";
 import { zValidator } from "@hono/zod-validator";
 import { clerkMiddleware, getAuth } from "@hono/clerk-auth";
 import { and, desc, eq, gte, inArray, lte, sql } from "drizzle-orm";
 
-import { db } from "@/db/drizzle";
 import {
   transactions,
   insertTransactionSchema,
   categories,
   accounts,
 } from "@/db/schema";
-import { parse, subDays } from "date-fns";
 
 const app = new Hono()
   .get(
@@ -44,6 +44,8 @@ const app = new Hono()
 
       const endDate = to ? parse(to, "yyyy-MM-dd", new Date()) : defaultTo;
 
+      console.log({ startDate, endDate });
+
       // select returns an array
       const data = await db
         .select({
@@ -65,10 +67,12 @@ const app = new Hono()
             accountId ? eq(transactions.accountId, accountId) : undefined,
             eq(accounts.userId, auth.userId),
             gte(transactions.date, startDate),
-            lte(transactions.date, endDate),
+            // lte(transactions.date, endDate),
           ),
         )
         .orderBy(desc(transactions.date));
+
+      console.log({ data });
 
       return c.json({ data });
     },
