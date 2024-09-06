@@ -1,3 +1,33 @@
+/**
+ * Database Schema Definitions:
+ * - **Accounts Table (`accounts`)**:
+ *   - `id`: Primary key, text
+ *   - `plaidId`: Text, optional
+ *   - `name`: Text, not null
+ *   - `userId`: Text, not null
+ *   - Relationships: One-to-many with `transactions`
+ *   - Insert Schema: `insertAccountSchema`
+ *
+ * - **Categories Table (`categories`)**:
+ *   - `id`: Primary key, text
+ *   - `plaidId`: Text, optional
+ *   - `name`: Text, not null
+ *   - `userId`: Text, not null
+ *   - Relationships: One-to-many with `transactions`
+ *   - Insert Schema: `insertCategorySchema`
+ *
+ * - **Transactions Table (`transactions`)**:
+ *   - `id`: Primary key, text
+ *   - `amount`: Integer, not null
+ *   - `payee`: Text, not null
+ *   - `notes`: Text, optional
+ *   - `date`: Timestamp (date mode), not null
+ *   - `accountId`: Text, references `accounts.id`, not null
+ *   - `categoryId`: Text, references `categories.id`, optional
+ *   - Relationships: Many-to-one with `accounts`, many-to-one with `categories`
+ *   - Insert Schema: `insertTransactionSchema` (coerces date to `Date` object)
+ */
+
 import { z } from "zod";
 import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
