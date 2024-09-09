@@ -64,7 +64,7 @@ export const categoriesRelations = relations(categories, ({ many }) => ({
 export const insertCategorySchema = createInsertSchema(categories);
 
 export const transactions = pgTable("transactions", {
-  id: text("id"),
+  id: text("id").primaryKey(),
   amount: integer("amount").notNull(),
   payee: text("payee").notNull(),
   notes: text("notes"),

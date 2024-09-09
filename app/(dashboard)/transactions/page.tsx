@@ -2,25 +2,26 @@
 
 import { Loader2, Plus } from "lucide-react";
 import { useNewTransaction } from "@/features/transactions/hooks/use-new-transaction";
-import { useGetAccounts } from "@/features/accounts/api/use-get-accounts";
-import { useBulkDeleteAccounts } from "@/features/accounts/api/use-bulk-delete-account";
+import { useGetTransactions } from "@/features/transactions/api/use-get-transactions";
+import { useBulkDeleteTransactions } from "@/features/transactions/api/use-bulk-delete-transactions";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { columns } from "@/app/(dashboard)/transactions/columns";
 
-import { columns } from "@/app/(dashboard)/accounts/columns";
 import { DataTable } from "@/components/data-table";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const TransactionsPage = () => {
   const newTransaction = useNewTransaction();
-  const accountQuery = useGetAccounts();
-  const deleteAccounts = useBulkDeleteAccounts();
-  const accounts = accountQuery.data || [];
+  const transactionsQuery = useGetTransactions();
+  const deleteTransactions = useBulkDeleteTransactions();
+  const transactions = transactionsQuery.data || [];
 
-  const isDisabled = accountQuery.isLoading || deleteAccounts.isPending;
+  const isDisabled =
+    transactionsQuery.isLoading || deleteTransactions.isPending;
 
-  if (accountQuery.isLoading) {
+  if (transactionsQuery.isLoading) {
     return (
       <div className={"max-w-screen-2xl mx-auto w-full pb-10 -mt-24"}>
         <Card className={"border-none drop-shadow-sm"}>
@@ -54,13 +55,13 @@ const TransactionsPage = () => {
         <CardContent>
           <DataTable
             columns={columns}
-            data={accounts}
-            filterKey={"name"}
+            data={transactions}
+            filterKey={"date"}
             onDelete={(row) => {
               const ids = row.map((r) => r.original.id);
 
               //deleting rows
-              deleteAccounts.mutate({ ids });
+              deleteTransactions.mutate({ ids });
             }}
             disabled={isDisabled}
           />
