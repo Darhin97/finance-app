@@ -11,12 +11,41 @@ import { columns } from "@/app/(dashboard)/transactions/columns";
 
 import { DataTable } from "@/components/data-table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useState } from "react";
+import UploadButton from "@/app/(dashboard)/transactions/upload-button";
+import ImportCard from "@/app/(dashboard)/transactions/import-card";
+
+enum VARIANTS {
+  LIST = "LIST",
+  IMPORT = "IMPORT",
+}
+
+const INITIAL_IMPORT_RESULT = {
+  data: [],
+  errors: [],
+  meta: {},
+};
 
 const TransactionsPage = () => {
+  const [variant, setVariant] = useState<VARIANTS>(VARIANTS.LIST);
+  const [importResults, setImportResults] = useState(INITIAL_IMPORT_RESULT);
+
   const newTransaction = useNewTransaction();
   const transactionsQuery = useGetTransactions();
   const deleteTransactions = useBulkDeleteTransactions();
   const transactions = transactionsQuery.data || [];
+
+  //upload csv file
+  const onUpload = (result: typeof INITIAL_IMPORT_RESULT) => {
+    // console.log({ result });
+    setImportResults(result);
+    setVariant(VARIANTS.IMPORT);
+  };
+
+  const onCancelImport = () => {
+    setImportResults(INITIAL_IMPORT_RESULT);
+    setVariant(VARIANTS.LIST);
+  };
 
   const isDisabled =
     transactionsQuery.isLoading || deleteTransactions.isPending;
@@ -40,6 +69,18 @@ const TransactionsPage = () => {
     );
   }
 
+  if (variant === VARIANTS.IMPORT) {
+    return (
+      <>
+        <ImportCard
+          data={importResults.data}
+          onCancel={onCancelImport}
+          onSubmit={() => {}}
+        />
+      </>
+    );
+  }
+
   return (
     <div className={"max-w-screen-2xl mx-auto w-full pb-10 -mt-24"}>
       <Card className={"border-none drop-shadow-sm"}>
@@ -47,16 +88,27 @@ const TransactionsPage = () => {
           className={"gap-y-2 lg:flex-row lg:items-center lg:justify-between"}
         >
           <CardTitle>Transaction History</CardTitle>
-          <Button size={"sm"} onClick={newTransaction.onOpen}>
-            <Plus className={"size-4 mr-2"} />
-            Add new
-          </Button>
+          <div
+            className={
+              "flex flex-col lg:flex-row gap-y-2  items-center gap-x-2"
+            }
+          >
+            <Button
+              className={"w-full lg:w-auto"}
+              size={"sm"}
+              onClick={newTransaction.onOpen}
+            >
+              <Plus className={"size-4 mr-2"} />
+              Add new
+            </Button>
+            <UploadButton onUpload={onUpload} />
+          </div>
         </CardHeader>
         <CardContent>
           <DataTable
             columns={columns}
             data={transactions}
-            filterKey={"date"}
+            filterKey={"payee"}
             onDelete={(row) => {
               const ids = row.map((r) => r.original.id);
 
