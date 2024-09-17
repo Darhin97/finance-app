@@ -9,7 +9,7 @@
     "lint": "next lint",
     "db:generate": "drizzle-kit generate:pg --schema db/schema.ts --out ./drizzle",
     "db:migrate": "bun ./scripts/migrate.ts",
-    "db:seed": "bun ./scripts/seeed.ts.ts",
+    "db:seed": "bun ./scripts/seed.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
@@ -40,6 +40,7 @@
     "lucide-react": "^0.378.0",
     "next": "14.2.3",
     "next-themes": "^0.3.0",
+    "query-string": "^9.1.0",
     "react": "^18",
     "react-countup": "^6.5.3",
     "react-currency-input-field": "^3.8.0",
